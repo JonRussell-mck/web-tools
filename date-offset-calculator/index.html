@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Date Offset Calculator</title>
+<style>
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+    background: #1a1b1e;
+    margin: 0;
+    padding: 40px;
+    color: #e4e4e7;
+  }
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+    background: #26272b;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    padding: 24px 28px;
+  }
+  h1 {
+    font-size: 18px;
+    margin: 0 0 20px;
+    text-align: center;
+    color: #f0f0f2;
+  }
+  .date-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .date-row label {
+    width: 90px;
+    font-weight: 600;
+  }
+  .date-row input[type="date"] {
+    flex: 1;
+    padding: 6px 8px;
+    font-size: 14px;
+    background: #1e1f23;
+    color: #e4e4e7;
+    border: 1px solid #3a3b40;
+    border-radius: 4px;
+    color-scheme: dark;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th {
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #9a9aa2;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #3a3b40;
+  }
+  td {
+    padding: 10px 6px;
+    border-bottom: 1px solid #33343a;
+    vertical-align: middle;
+  }
+  .label-cell {
+    font-weight: 600;
+    width: 90px;
+    color: #e4e4e7;
+  }
+  .days-cell input {
+    width: 70px;
+    padding: 5px 6px;
+    font-size: 14px;
+    background: #1e1f23;
+    color: #e4e4e7;
+    border: 1px solid #3a3b40;
+    border-radius: 4px;
+  }
+  .output-cell {
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 14px;
+    color: #7cb0ff;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Date Offset Calculator</h1>
+
+  <div class="date-row">
+    <label for="baseDate">Start Date</label>
+    <input type="date" id="baseDate">
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th class="label-cell">Priority</th>
+        <th>Days to Add</th>
+        <th>Output Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label-cell">Critical</td>
+        <td class="days-cell"><input type="number" id="daysCritical" value="15"></td>
+        <td class="output-cell" id="outCritical">-</td>
+      </tr>
+      <tr>
+        <td class="label-cell">High</td>
+        <td class="days-cell"><input type="number" id="daysHigh" value="30"></td>
+        <td class="output-cell" id="outHigh">-</td>
+      </tr>
+      <tr>
+        <td class="label-cell">Medium</td>
+        <td class="days-cell"><input type="number" id="daysMedium" value="90"></td>
+        <td class="output-cell" id="outMedium">-</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+(function () {
+  const baseDateInput = document.getElementById('baseDate');
+  const rows = [
+    { days: document.getElementById('daysCritical'), out: document.getElementById('outCritical') },
+    { days: document.getElementById('daysHigh'), out: document.getElementById('outHigh') },
+    { days: document.getElementById('daysMedium'), out: document.getElementById('outMedium') }
+  ];
+
+  function formatDate(d) {
+    const opts = { year: 'numeric', month: 'long', day: 'numeric' };
+    return d.toLocaleDateString(undefined, opts);
+  }
+
+  function recompute() {
+    const baseValue = baseDateInput.value;
+    if (!baseValue) {
+      rows.forEach(r => r.out.textContent = '-');
+      return;
+    }
+    const [year, month, day] = baseValue.split('-').map(Number);
+    rows.forEach(r => {
+      const days = parseInt(r.days.value, 10);
+      const output = r.out;
+      if (isNaN(days)) {
+        output.textContent = '-';
+        return;
+      }
+      const d = new Date(year, month - 1, day);
+      d.setDate(d.getDate() + days);
+      output.textContent = formatDate(d);
+    });
+  }
+
+  baseDateInput.addEventListener('input', recompute);
+  rows.forEach(r => r.days.addEventListener('input', recompute));
+
+  // Initialize with today's date
+  const today = new Date();
+  const iso = today.getFullYear() + '-' +
+    String(today.getMonth() + 1).padStart(2, '0') + '-' +
+    String(today.getDate()).padStart(2, '0');
+  baseDateInput.value = iso;
+  recompute();
+})();
+</script>
+</body>
+</html>
